@@ -1,7 +1,6 @@
-//! Generate `expected_garaga_calldata.json` from fixtures via generate_circom_groth16_garaga_calldata.
+//! Emit diagnostic calldata from the Rust adapter for comparison with the independent golden fixture.
 //!
-//! Usage:
-//!   cargo run -p garaga-calldata-tests --bin gen-garaga-calldata-fixture
+//! Usage: cargo run -p garaga-calldata-tests --bin gen-garaga-calldata-fixture
 
 use garaga_calldata_tests::{
     generate_circom_groth16_garaga_calldata, CircomProof, CircomProofResult, G1, G2,
@@ -72,8 +71,6 @@ fn main() {
     let calldata =
         generate_circom_groth16_garaga_calldata(proof_result, vk).expect("generate calldata");
 
-    let out = fixture_dir.join("expected_garaga_calldata.json");
     let json = serde_json::to_string_pretty(&calldata).expect("serialize calldata");
-    fs::write(&out, json).expect("write expected_garaga_calldata.json");
-    println!("Wrote {} felts to {}", calldata.len(), out.display());
+    print!("{json}");
 }
