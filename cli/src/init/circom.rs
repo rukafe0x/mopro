@@ -10,6 +10,10 @@ impl ProvingSystem for Circom {
 
     const ADAPTER: Adapter = Adapter::Circom;
 
+    const FEATURES: &'static str = r#"
+garaga = ["garaga_rs"]
+    "#;
+
     const DEPENDENCIES: &'static str = r#"
 circom-prover = "0.1"
 rust-witness  = "0.1"
