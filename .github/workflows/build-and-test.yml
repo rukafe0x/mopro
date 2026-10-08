@@ -270,7 +270,9 @@ jobs:
                   go-version: "1.24"
 
             - name: Android SDK
-              uses: android-actions/setup-android@v4
+              uses: android-actions/setup-android@v3
+              with:
+                  packages: "platform-tools"
 
             - name: Setup NDK
               uses: nttld/setup-ndk@v1
