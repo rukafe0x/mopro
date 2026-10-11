@@ -1,3 +1,8 @@
+use super::garaga_convert::snarkjs_g1_to_garaga;
+use garaga_rs::definitions::BN254PrimeField;
+use garaga_rs::io::{
+    field_elements_from_big_uints, parse_g1_points_from_flattened_field_elements_list,
+};
 use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
@@ -37,12 +42,23 @@ fn validate_vk(vk: &SnarkJsVerificationKey) -> Result<(), String> {
             vk.curve
         ));
     }
-    if vk.ic.len() != vk.n_public + 1 {
+    let expected_ic_len = vk
+        .n_public
+        .checked_add(1)
+        .ok_or_else(|| "nPublic is too large to represent IC length (nPublic + 1)".to_string())?;
+    if vk.ic.len() != expected_ic_len {
         return Err(format!(
             "IC length mismatch: expected {} points (nPublic + 1), got {}",
-            vk.n_public + 1,
+            expected_ic_len,
             vk.ic.len()
         ));
+    }
+    for (index, coords) in vk.ic.iter().enumerate() {
+        let point = snarkjs_g1_to_garaga(coords)
+            .map_err(|e| format!("invalid IC point at index {index}: {e}"))?;
+        let elements = field_elements_from_big_uints::<BN254PrimeField>(&point.flatten());
+        parse_g1_points_from_flattened_field_elements_list(&elements)
+            .map_err(|e| format!("invalid IC point at index {index}: {e}"))?;
     }
     Ok(())
 }

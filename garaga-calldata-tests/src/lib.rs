@@ -86,6 +86,37 @@ mod tests {
         assert_eq!(vk.ic.len(), vk.n_public + 1);
     }
 
+    #[test]
+    fn test_generate_calldata_rejects_unrepresentable_ic_count() {
+        let mut vk: serde_json::Value =
+            serde_json::from_str(&read_fixture("verification_key.json")).unwrap();
+        vk["nPublic"] = serde_json::json!(usize::MAX);
+
+        let err =
+            generate_circom_groth16_garaga_calldata(load_fixture_proof_result(), vk.to_string())
+                .unwrap_err();
+        assert!(err.to_string().contains("nPublic is too large"));
+    }
+
+    #[test]
+    fn test_generate_calldata_rejects_off_curve_ic_points() {
+        let original: serde_json::Value =
+            serde_json::from_str(&read_fixture("verification_key.json")).unwrap();
+        for index in 0..original["IC"].as_array().unwrap().len() {
+            let mut vk = original.clone();
+            vk["IC"][index] = serde_json::json!(["1", "1", "1"]);
+
+            let err = generate_circom_groth16_garaga_calldata(
+                load_fixture_proof_result(),
+                vk.to_string(),
+            )
+            .unwrap_err();
+            assert!(err
+                .to_string()
+                .contains(&format!("invalid IC point at index {index}")));
+        }
+    }
+
     /// BN254 scalar-field order (Fr), decimal.
     fn bn254_scalar_field() -> BigUint {
         BigUint::parse_bytes(
