@@ -59,6 +59,7 @@ pub fn init_project(
 
     if let Some(cargo_toml_path) = project_dir.join("Cargo.toml").to_str() {
         replace_project_name(cargo_toml_path, &project_name)?;
+        adapter_sel.feature_template(cargo_toml_path)?;
         adapter_sel.dep_template(cargo_toml_path)?;
         adapter_sel.build_dep_template(cargo_toml_path)?;
         adapter_sel.dev_dep_template(cargo_toml_path)?;

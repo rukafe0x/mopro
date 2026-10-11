@@ -75,6 +75,22 @@ impl AdapterSelector {
         }
     }
 
+    pub fn feature_template(&self, cargo_toml_path: &str) -> anyhow::Result<()> {
+        if self.contains(Adapter::Circom) {
+            Circom::feature_template(cargo_toml_path)?;
+        }
+        if self.contains(Adapter::Halo2) {
+            Halo2::feature_template(cargo_toml_path)?;
+        }
+        if self.contains(Adapter::Noir) {
+            Noir::feature_template(cargo_toml_path)?;
+        }
+        if self.contains(Adapter::Gnark) {
+            Gnark::feature_template(cargo_toml_path)?;
+        }
+        Ok(())
+    }
+
     pub fn dep_template(&self, cargo_toml_path: &str) -> anyhow::Result<()> {
         if self.contains(Adapter::Circom) {
             Circom::dep_template(cargo_toml_path)?;

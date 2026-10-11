@@ -10,8 +10,17 @@ pub(super) trait ProvingSystem {
     const DEPENDENCIES: &'static str = "";
     const BUILD_DEPENDENCIES: &'static str = "";
     const DEV_DEPENDENCIES: &'static str = "";
+    const FEATURES: &'static str = "";
 
     const BUILD_TEMPLATE: &'static str = "";
+
+    fn feature_template(file_path: &str) -> anyhow::Result<()> {
+        if Self::FEATURES.is_empty() {
+            return Ok(());
+        }
+        let target = format!("{}_FEATURES", Self::ADAPTER.as_str().to_uppercase());
+        append_below_string_in_file(file_path, &target, Self::FEATURES)
+    }
 
     fn dep_template(file_path: &str) -> anyhow::Result<()> {
         let target = format!("{}_DEPENDENCIES", Self::ADAPTER.as_str().to_uppercase());
